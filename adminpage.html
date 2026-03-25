@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="con" id="loginBox">
+        <h2>Admin Login</h2>
+        <input type="password" id="passInput" placeholder="Enter Password"><br><br>
+        <button onclick="checkPassword()">Login</button><br><br>
+        <a href="index.html"><button>Home</button></a>
+    </div>
+
+    <div class="con" id="adminPanel" style="display:none;">
+        <h2>Admin Panel</h2>
+        <input type="text" id="newSlot" placeholder="Enter Slot Number (e.g. B2)"><br><br>
+        <button onclick="addSlot()">Add Slot</button>
+        <button onclick="clearHistory()">Clear History</button>
+        <button onclick="adminLogout()" style="background:rgb(172, 169, 169);">Logout</button>
+        <br><br>
+        <input type="text" id="removeSlot" placeholder="Enter Slot to Remove (e.g. B2)"><br><br>
+        <button onclick="removeSlot()" style="background:rgb(160, 47, 47);">Remove Slot</button>
+        <br><br>
+        <h3>All Slots</h3>
+        <ul id="slotList"></ul>
+
+        <br>
+        <a href="index.html"><button>Home</button></a>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const ADMIN_PASSWORD = "admin123";
+
+        if (sessionStorage.getItem("adminLoggedIn") === "true") {
+            showPanel();
+        }
+
+        function checkPassword() {
+            const input = document.getElementById("passInput").value;
+            if (input === ADMIN_PASSWORD) {
+                sessionStorage.setItem("adminLoggedIn", "true");
+                showPanel();
+            } else {
+                alert("Wrong password! Try again.");
+                document.getElementById("passInput").value = "";
+            }
+        }
+
+        function showPanel() {
+            document.getElementById("loginBox").style.display = "none";
+            document.getElementById("adminPanel").style.display = "inline-block";
+            displaySlots();
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem("adminLoggedIn");
+            document.getElementById("loginBox").style.display = "inline-block";
+            document.getElementById("adminPanel").style.display = "none";
+            document.getElementById("passInput").value = "";
+        }
+    </script>
+</body>
+</html>

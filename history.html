@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking History</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .search-box {
+            width: 200px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            margin-bottom: 10px;
+        }
+
+        #historyList {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #historyList li {
+            padding: 8px 12px;
+            border-bottom: 1px solid white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .del-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .del-btn:hover { background: darkred; }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .stats span strong {
+            color: rgb(232, 146, 17);
+        }
+
+        .empty {
+            color: grey;
+            font-size: 0.9rem;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="con">
+        <h2> Parking History</h2>
+
+        <div class="stats">
+            <span>Total: <strong id="totalCount">0</strong></span>
+            <span>Today: <strong id="todayCount">0</strong></span>
+        </div>
+
+        <div class="controls">
+            <input class="search-box" id="searchInput" type="text" placeholder="🔍 Search..." oninput="renderHistory()">
+            <button onclick="clearAllHistory()">Clear All</button>
+        </div>
+
+        <ul id="historyList"></ul>
+
+        <br>
+        <a href="index.html"><button>Home</button></a>
+    </div>
+
+    <script>
+        let history = JSON.parse(localStorage.getItem("history")) || [];
+
+        function updateStats() {
+            document.getElementById("totalCount").textContent = history.length;
+            const today = new Date().toLocaleDateString();
+            const todayCount = history.filter(h => h.includes(today)).length;
+            document.getElementById("todayCount").textContent = todayCount;
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("historyList");
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = history.filter(h => h.toLowerCase().includes(query));
+
+            list.innerHTML = "";
+
+            if (history.length === 0) {
+                list.innerHTML = '<li class="empty">No bookings yet.</li>';
+                return;
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<li class="empty">No results found.</li>';
+                return;
+            }
+
+            [...filtered].reverse().forEach((entry, i) => {
+                const realIndex = history.indexOf(entry);
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span>${entry}</span>
+                    <button class="del-btn" onclick="deleteEntry(${realIndex})">✕</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function deleteEntry(index) {
+            history.splice(index, 1);
+            localStorage.setItem("history", JSON.stringify(history));
+            updateStats();
+            renderHistory();
+        }
+
+        function clearAllHistory() {
+            if (history.length === 0) { alert("Nothing to clear!"); return; }
+            if (confirm("Clear all booking history?")) {
+                history = [];
+                localStorage.setItem("history", JSON.stringify(history));
+                updateStats();
+                renderHistory();
+            }
+        }
+
+        window.onload = function () {
+            updateStats();
+            renderHistory();
+        };
+    </script>
+</body>
+</html>
