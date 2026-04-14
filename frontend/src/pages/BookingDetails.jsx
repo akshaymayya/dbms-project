@@ -11,6 +11,15 @@ export default function BookingDetails() {
   const [isExtending, setIsExtending] = useState(false);
   const [message, setMessage] = useState('');
 
+  const format12Hour = (time24) => {
+    if (!time24) return "";
+    const [hours, minutes] = time24.split(":");
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  };
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     if (!user) {
@@ -116,7 +125,7 @@ export default function BookingDetails() {
               <span className="text-slate-400 font-medium tracking-wide uppercase text-sm">Reserved Timings</span>
               <div className="text-right flex items-center gap-2 text-emerald-400 font-mono text-lg bg-emerald-400/10 px-3 py-1 rounded">
                 <Clock size={16} />
-                {booking.startTime} - {booking.endTime}
+                {format12Hour(booking.startTime)} - {format12Hour(booking.endTime)}
               </div>
             </div>
           </div>
