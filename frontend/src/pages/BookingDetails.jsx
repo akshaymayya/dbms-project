@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Plus, Car, ArrowLeft } from 'lucide-react';
+import { Clock, Plus, Car, ArrowLeft, Home } from 'lucide-react';
 import { format12Hour } from '../utils/timeUtils';
 
 export default function BookingDetails() {
@@ -85,13 +85,18 @@ export default function BookingDetails() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
       {/* Top Navbar */}
-      <div className="flex items-center p-4 bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50 gap-4">
-        <button onClick={() => navigate('/booking')} className="p-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors flex items-center gap-2">
-          <ArrowLeft size={18} /> Back
+      <div className="flex items-center justify-between p-4 bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/booking')} className="p-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors flex items-center gap-2">
+            <ArrowLeft size={18} /> Back
+          </button>
+          <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400 hidden sm:flex">
+            <Car /> Parking Zone
+          </h1>
+        </div>
+        <button onClick={() => navigate('/booking')} className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/50 text-teal-400 font-bold rounded-lg transition-colors flex items-center gap-2">
+          <Home size={18} /> Homepage
         </button>
-        <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400">
-          <Car /> Parking Zone
-        </h1>
       </div>
 
       <div className="max-w-2xl mx-auto w-full p-6 mt-8">
