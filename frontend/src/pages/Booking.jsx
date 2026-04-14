@@ -21,7 +21,7 @@ export default function Booking() {
   const navigate = useNavigate();
 
   const hoursList = Array.from({length: 12}, (_, i) => (i + 1).toString().padStart(2, '0'));
-  const minsList = ['00', '15', '30', '45'];
+  const minsList = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'));
 
   // 4 rows, 12 columns = 48 slots. Layout: 2 parking areas separated by an aisle.
   const slots = Array.from({ length: 48 }, (_, i) => {
@@ -120,7 +120,7 @@ export default function Booking() {
       <div className="max-w-5xl mx-auto w-full p-6 flex-1 flex flex-col items-center">
         
         {/* Reservation Form */}
-        <div className="w-full bg-slate-800/40 p-6 rounded-xl border border-slate-700/50 mb-8 shadow-xl shadow-black/20 flex flex-col md:flex-row gap-4 items-end justify-center relative overflow-hidden">
+        <div className="w-full bg-slate-800/40 p-4 sm:p-6 rounded-xl border border-slate-700/50 mb-8 shadow-xl shadow-black/20 flex flex-col md:flex-row gap-4 items-stretch md:items-end justify-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           
           <div className="flex-1 w-full relative z-10">
@@ -136,13 +136,9 @@ export default function Booking() {
           <div className="flex-[1.5] w-full relative z-10">
             <label className="block text-xs uppercase font-bold text-slate-400 mb-2 tracking-wider">Entry Time</label>
             <div className="flex gap-1 items-center">
-              <select value={startHour} onChange={(e) => setStartHour(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center">
-                {hoursList.map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
+              <input type="number" min="1" max="12" value={startHour} onChange={(e) => setStartHour(e.target.value)} onBlur={(e) => setStartHour(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <span className="text-slate-400 font-bold">:</span>
-              <select value={startMin} onChange={(e) => setStartMin(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center">
-                {minsList.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              <input type="number" min="0" max="59" value={startMin} onChange={(e) => setStartMin(e.target.value)} onBlur={(e) => setStartMin(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <select value={startAmPm} onChange={(e) => setStartAmPm(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center text-yellow-400 font-bold">
                 <option value="AM">AM</option>
                 <option value="PM">PM</option>
@@ -152,13 +148,9 @@ export default function Booking() {
           <div className="flex-[1.5] w-full relative z-10">
             <label className="block text-xs uppercase font-bold text-slate-400 mb-2 tracking-wider">Exit Time</label>
             <div className="flex gap-1 items-center">
-              <select value={endHour} onChange={(e) => setEndHour(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center">
-                {hoursList.map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
+              <input type="number" min="1" max="12" value={endHour} onChange={(e) => setEndHour(e.target.value)} onBlur={(e) => setEndHour(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <span className="text-slate-400 font-bold">:</span>
-              <select value={endMin} onChange={(e) => setEndMin(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center">
-                {minsList.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              <input type="number" min="0" max="59" value={endMin} onChange={(e) => setEndMin(e.target.value)} onBlur={(e) => setEndMin(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <select value={endAmPm} onChange={(e) => setEndAmPm(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center text-yellow-400 font-bold">
                 <option value="AM">AM</option>
                 <option value="PM">PM</option>
