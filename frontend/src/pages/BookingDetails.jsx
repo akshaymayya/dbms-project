@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Plus, Car } from 'lucide-react';
+import { Clock, Plus, Car, ArrowLeft } from 'lucide-react';
+import { format12Hour } from '../utils/timeUtils';
 
 export default function BookingDetails() {
   const { slotId } = useParams();
@@ -10,16 +11,6 @@ export default function BookingDetails() {
   const [extendTime, setExtendTime] = useState('');
   const [isExtending, setIsExtending] = useState(false);
   const [message, setMessage] = useState('');
-
-  const format12Hour = (time24) => {
-    if (!time24) return "";
-    const [hours, minutes] = time24.split(":");
-    const h = parseInt(hours, 10);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    return `${h12}:${minutes} ${ampm}`;
-  };
-
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     if (!user) {
