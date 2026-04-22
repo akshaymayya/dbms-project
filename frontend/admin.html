@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+
+  <script>
+    if (!sessionStorage.getItem("adminLoggedIn")) {
+      const p = prompt("Enter Admin Password:");
+      if (p !== "admin123") {
+        alert("Incorrect password!");
+        window.location.href = "/login.html";
+      } else {
+        sessionStorage.setItem("adminLoggedIn", "true");
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0f172a] min-h-screen text-gray-200 p-8 font-sans antialiased text-sm">
+  <div class="max-w-5xl mx-auto flex flex-col gap-8">
+    <div class="flex justify-between items-center bg-[#1e293b] p-6 rounded-xl border border-slate-700 shadow-xl">
+      <h1 class="text-2xl font-bold text-slate-100">Admin Control Panel</h1>
+      <div class="flex gap-4">
+        <a href="/" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold flex items-center justify-center px-6 rounded transition-colors shadow-lg">View Grid</a>
+        <button id="logout-btn" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-6 rounded transition-colors shadow-lg">Logout</button>
+      </div>
+    </div>
+    
+    <div class="bg-[#1e293b] p-8 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+      <h2 class="text-xl font-bold mb-6 text-slate-300">Live Active Bookings</h2>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-600 text-slate-400 text-xs uppercase tracking-wider">
+              <th class="px-4 py-3 font-semibold">Slot ID</th>
+              <th class="px-4 py-3 font-semibold">Vehicle Plate</th>
+              <th class="px-4 py-3 font-semibold">Start Time</th>
+              <th class="px-4 py-3 font-semibold">End Time</th>
+              <th class="px-4 py-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-table-body" class="divide-y divide-slate-700/50">
+            <tr>
+              <td colspan="5" class="py-8 text-center text-slate-500">Loading bookings from Supabase...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>

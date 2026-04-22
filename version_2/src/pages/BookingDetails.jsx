@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Plus, Car, ArrowLeft, Home } from 'lucide-react';
-import { format12Hour } from '../utils/timeUtils';
+import { ArrowLeft, Clock, Plus, Car } from 'lucide-react';
 
 export default function BookingDetails() {
   const { slotId } = useParams();
@@ -11,6 +10,7 @@ export default function BookingDetails() {
   const [extendTime, setExtendTime] = useState('');
   const [isExtending, setIsExtending] = useState(false);
   const [message, setMessage] = useState('');
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     if (!user) {
@@ -85,18 +85,13 @@ export default function BookingDetails() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
       {/* Top Navbar */}
-      <div className="flex items-center justify-between p-4 bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/booking')} className="p-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors flex items-center gap-2">
-            <ArrowLeft size={18} /> Back
-          </button>
-          <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400 hidden sm:flex">
-            <Car /> Parking Zone
-          </h1>
-        </div>
-        <button onClick={() => navigate('/booking')} className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/50 text-teal-400 font-bold rounded-lg transition-colors flex items-center gap-2">
-          <Home size={18} /> Homepage
+      <div className="flex items-center p-4 bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50 gap-4">
+        <button onClick={() => navigate('/booking')} className="p-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors flex items-center gap-2">
+          <ArrowLeft size={18} /> Back
         </button>
+        <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400">
+          <Car /> Parking Zone
+        </h1>
       </div>
 
       <div className="max-w-2xl mx-auto w-full p-6 mt-8">
@@ -121,7 +116,7 @@ export default function BookingDetails() {
               <span className="text-slate-400 font-medium tracking-wide uppercase text-sm">Reserved Timings</span>
               <div className="text-right flex items-center gap-2 text-emerald-400 font-mono text-lg bg-emerald-400/10 px-3 py-1 rounded">
                 <Clock size={16} />
-                {format12Hour(booking.startTime)} - {format12Hour(booking.endTime)}
+                {booking.startTime} - {booking.endTime}
               </div>
             </div>
           </div>

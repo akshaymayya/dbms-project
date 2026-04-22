@@ -1,13 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Dark Mode Parking Booking</title>
+    <!-- Basic validation redirection -->
+    <script>
+      if (!localStorage.getItem("isLoggedIn")) {
+        window.location.href = "/login.html";
+      }
+    </script>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+  <body class="bg-[#0f172a] min-h-screen text-gray-200 p-8 font-sans antialiased text-sm">
+    <div class="max-w-5xl mx-auto flex flex-col gap-8">
+      <!-- Header -->
+      <div class="flex justify-between items-center bg-[#1e293b] p-6 rounded-xl border border-gray-700/50 shadow-xl">
+        <h1 class="text-2xl font-bold text-slate-100">Parking Booking System</h1>
+        <button id="logout-btn" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-6 rounded transition-colors shadow-lg">Logout</button>
+      </div>
+
+      <!-- Top Input Panel -->
+      <div class="bg-[#1e293b] p-6 rounded-xl border border-gray-700/50 shadow-xl flex flex-wrap gap-8 items-end">
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-gray-400 tracking-wider">VEHICLE PLATE</label>
+          <input id="plate-input" type="text" placeholder="MH 12 AB 1234" class="bg-[#0f172a] border border-gray-600 rounded px-4 py-2 text-gray-200 focus:outline-none focus:border-blue-500 w-56 font-mono selection:bg-blue-500/30">
+        </div>
+        
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-gray-400 tracking-wider">ENTRY TIME</label>
+          <div class="flex items-center gap-2">
+            <input id="entry-hh" type="text" value="12" class="bg-[#0f172a] border border-gray-600 rounded px-3 py-2 text-center w-14 text-gray-200 focus:outline-none focus:border-blue-500">
+            <span class="text-gray-400 font-bold">:</span>
+            <input id="entry-mm" type="text" value="00" class="bg-[#0f172a] border border-gray-600 rounded px-3 py-2 text-center w-14 text-gray-200 focus:outline-none focus:border-blue-500">
+            <input id="entry-ampm" type="text" value="PM" class="bg-[#0f172a] border border-gray-600 rounded px-3 py-2 text-center w-16 text-yellow-500 font-bold focus:outline-none focus:border-blue-500 uppercase">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-gray-400 tracking-wider">EXIT TIME</label>
+          <div class="flex items-center gap-2">
+            <input id="exit-hh" type="text" value="01" class="bg-[#0f172a] border border-gray-600 rounded px-3 py-2 text-center w-14 text-gray-200 focus:outline-none focus:border-blue-500">
+            <span class="text-gray-400 font-bold">:</span>
+            <input id="exit-mm" type="text" value="00" class="bg-[#0f172a] border border-gray-600 rounded px-3 py-2 text-center w-14 text-gray-200 focus:outline-none focus:border-blue-500">
+            <input id="exit-ampm" type="text" value="PM" class="bg-[#0f172a] border border-gray-600 rounded px-3 py-2 text-center w-16 text-yellow-500 font-bold focus:outline-none focus:border-blue-500 uppercase">
+          </div>
+        </div>
+        
+        <div class="ml-auto">
+          <button id="book-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-6 rounded transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed h-10 flex items-center justify-center">
+            Book Selected
+          </button>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex justify-center">
+        <div class="bg-[#1e293b] px-6 py-3 rounded-full border border-gray-700/50 flex gap-6 text-xs font-semibold tracking-wide">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 border-2 border-dashed border-gray-500 rounded"></div>
+            <span class="text-gray-300">Open</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 border-2 border-yellow-500 rounded text-yellow-500 flex items-center justify-center font-bold"></div>
+            <span class="text-gray-300">Selected</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 border-2 border-dashed border-red-500/50 bg-red-900/20 rounded flex items-center justify-center">
+              <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10h1.28a3.001 3.001 0 005.44 0h2.56a3.001 3.001 0 005.44 0H18V9l-3-4H3zM4 6h9l2.25 3H4V6z"/></svg>
+            </div>
+            <span class="text-gray-300">Occupied</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Panel -->
+      <div class="bg-[#1e293b] p-8 rounded-xl border border-gray-700/50 shadow-xl overflow-x-auto">
+        <div id="parking-grid" class="flex flex-col gap-6 w-max mx-auto pb-4">
+          <!-- Populated by main.js -->
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -1,27 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Car, CheckCircle2 } from 'lucide-react';
-import { supabase } from '../supabase';
-import { get24HourString } from '../utils/timeUtils';
-import TicketModal from '../components/TicketModal';
 
 export default function Booking() {
   const [bookedSlots, setBookedSlots] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [vehicle, setVehicle] = useState('');
-  const [startHour, setStartHour] = useState('12');
-  const [startMin, setStartMin] = useState('00');
-  const [startAmPm, setStartAmPm] = useState('PM');
-  const [endHour, setEndHour] = useState('01');
-  const [endMin, setEndMin] = useState('00');
-  const [endAmPm, setEndAmPm] = useState('PM');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
   const [bookingMessage, setBookingMessage] = useState(null);
-  const [showTicket, setShowTicket] = useState(false);
   const navigate = useNavigate();
-
-  const hoursList = Array.from({length: 12}, (_, i) => (i + 1).toString().padStart(2, '0'));
-  const minsList = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'));
 
   // 4 rows, 12 columns = 48 slots. Layout: 2 parking areas separated by an aisle.
   const slots = Array.from({ length: 48 }, (_, i) => {
@@ -38,23 +27,8 @@ export default function Booking() {
     }
     setCurrentUser(user);
 
-    const loadData = async () => {
-      const { data, error } = await supabase.from('bookings').select('*');
-      if (error) {
-        console.error("Error fetching bookings:", error);
-      } else if (data) {
-        const slotsObj = {};
-        data.forEach(booking => {
-          slotsObj[booking.slot_id] = {
-            name: booking.customer_name,
-            vehicle: booking.vehicle_number,
-            startTime: booking.start_time,
-            endTime: booking.end_time,
-            time: booking.created_at
-          };
-        });
-        setBookedSlots(slotsObj);
-      }
+    const loadData = () => {
+      setBookedSlots(JSON.parse(localStorage.getItem('bookedSlots')) || {});
     };
     
     loadData();
@@ -62,38 +36,32 @@ export default function Booking() {
     return () => clearInterval(interval);
   }, [navigate]);
 
-  const handleBook = async () => {
+  const handleBook = () => {
     if (!selectedSlot) return alert("Please select a parking space.");
     if (!vehicle) return alert("Please enter your vehicle number.");
-
-    const startTime = get24HourString(startHour, startMin, startAmPm);
-    const endTime = get24HourString(endHour, endMin, endAmPm);
+    if (!startTime || !endTime) return alert("Please enter both start and end times.");
     
     if (bookedSlots[selectedSlot]) return alert(`Slot ${selectedSlot} is already booked!`);
 
-    setBookingMessage("Processing...");
+    const updatedBooked = { 
+      ...bookedSlots, 
+      [selectedSlot]: { 
+        name: currentUser.name, 
+        vehicle, 
+        time: new Date().toLocaleString(),
+        startTime,
+        endTime
+      } 
+    };
+    
+    setBookedSlots(updatedBooked);
+    localStorage.setItem('bookedSlots', JSON.stringify(updatedBooked));
 
-    const { error: bookingError } = await supabase.from('bookings').insert([{
-      slot_id: selectedSlot,
-      customer_name: currentUser.name,
-      vehicle_number: vehicle,
-      start_time: startTime,
-      end_time: endTime
-    }]);
+    const history = JSON.parse(localStorage.getItem('history')) || [];
+    history.push(`${currentUser.name} (${vehicle}) booked slot ${selectedSlot} from ${startTime} to ${endTime} on ${new Date().toLocaleString()}`);
+    localStorage.setItem('history', JSON.stringify(history));
 
-    if (bookingError) {
-      console.error(bookingError);
-      alert("Failed to book slot. Check console.");
-      setBookingMessage(null);
-      return;
-    }
-
-    await supabase.from('activity_log').insert([{
-      action_description: `${currentUser.name} (${vehicle}) booked slot ${selectedSlot} from ${startTime} to ${endTime}`
-    }]);
-
-    setBookingMessage(null);
-    setShowTicket(true);
+    navigate(`/details/${selectedSlot}`);
   };
 
   const handleSeatClick = (slot) => {
@@ -120,7 +88,7 @@ export default function Booking() {
       <div className="max-w-5xl mx-auto w-full p-6 flex-1 flex flex-col items-center">
         
         {/* Reservation Form */}
-        <div className="w-full bg-slate-800/40 p-4 sm:p-6 rounded-xl border border-slate-700/50 mb-8 shadow-xl shadow-black/20 flex flex-col md:flex-row gap-4 items-stretch md:items-end justify-center relative overflow-hidden">
+        <div className="w-full bg-slate-800/40 p-6 rounded-xl border border-slate-700/50 mb-8 shadow-xl shadow-black/20 flex flex-col md:flex-row gap-4 items-end justify-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           
           <div className="flex-1 w-full relative z-10">
@@ -133,29 +101,23 @@ export default function Booking() {
               placeholder="MH 12 AB 1234"
             />
           </div>
-          <div className="flex-[1.5] w-full relative z-10">
+          <div className="flex-1 w-full relative z-10">
             <label className="block text-xs uppercase font-bold text-slate-400 mb-2 tracking-wider">Entry Time</label>
-            <div className="flex gap-1 items-center">
-              <input type="number" min="1" max="12" value={startHour} onChange={(e) => setStartHour(e.target.value)} onBlur={(e) => setStartHour(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <span className="text-slate-400 font-bold">:</span>
-              <input type="number" min="0" max="59" value={startMin} onChange={(e) => setStartMin(e.target.value)} onBlur={(e) => setStartMin(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <select value={startAmPm} onChange={(e) => setStartAmPm(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center text-yellow-400 font-bold">
-                <option value="AM">AM</option>
-                <option value="PM">PM</option>
-              </select>
-            </div>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-4 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm [&::-webkit-calendar-picker-indicator]:invert transition-all"
+            />
           </div>
-          <div className="flex-[1.5] w-full relative z-10">
+          <div className="flex-1 w-full relative z-10">
             <label className="block text-xs uppercase font-bold text-slate-400 mb-2 tracking-wider">Exit Time</label>
-            <div className="flex gap-1 items-center">
-              <input type="number" min="1" max="12" value={endHour} onChange={(e) => setEndHour(e.target.value)} onBlur={(e) => setEndHour(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <span className="text-slate-400 font-bold">:</span>
-              <input type="number" min="0" max="59" value={endMin} onChange={(e) => setEndMin(e.target.value)} onBlur={(e) => setEndMin(e.target.value.padStart(2, '0'))} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <select value={endAmPm} onChange={(e) => setEndAmPm(e.target.value)} className="w-[4.5rem] bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-2 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-all appearance-none text-center text-yellow-400 font-bold">
-                <option value="AM">AM</option>
-                <option value="PM">PM</option>
-              </select>
-            </div>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-600 rounded-lg py-2.5 px-4 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm [&::-webkit-calendar-picker-indicator]:invert transition-all"
+            />
           </div>
         </div>
 
@@ -330,7 +292,7 @@ export default function Booking() {
           <button 
             onClick={handleBook}
             className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-extrabold uppercase tracking-widest rounded-xl shadow-[0_10px_30px_rgba(245,158,11,0.3)] hover:shadow-[0_10px_40px_rgba(245,158,11,0.5)] hover:-translate-y-1 transition-all disabled:opacity-50 disabled:shadow-none disabled:-translate-y-0 disabled:cursor-not-allowed"
-            disabled={!selectedSlot || !vehicle}
+            disabled={!selectedSlot || !vehicle || !startTime || !endTime}
           >
             Confirm Reservation
           </button>
@@ -344,20 +306,6 @@ export default function Booking() {
         )}
 
       </div>
-
-      <TicketModal 
-        showTicket={showTicket}
-        selectedSlot={selectedSlot}
-        vehicle={vehicle}
-        startHour={startHour}
-        startMin={startMin}
-        startAmPm={startAmPm}
-        endHour={endHour}
-        endMin={endMin}
-        endAmPm={endAmPm}
-        onDone={() => navigate(`/details/${selectedSlot}`)}
-      />
-
     </div>
   );
 }

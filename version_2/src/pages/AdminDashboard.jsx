@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Trash2, History, ShieldAlert } from 'lucide-react';
-import { supabase } from '../supabase';
 
 export default function AdminDashboard() {
   const [bookedSlots, setBookedSlots] = useState({});
@@ -24,47 +23,30 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, [navigate]);
 
-  const loadData = async () => {
-    const { data: bData, error: bError } = await supabase.from('bookings').select('*');
-    if (!bError && bData) {
-      const slotsObj = {};
-      bData.forEach(booking => {
-        slotsObj[booking.slot_id] = {
-           name: booking.customer_name,
-           startTime: booking.start_time,
-           endTime: booking.end_time
-        };
-      });
-      setBookedSlots(slotsObj);
-    }
-    
-    const { data: hData, error: hError } = await supabase.from('activity_log').select('*').order('created_at', { ascending: false });
-    if (!hError && hData) {
-      setHistory(hData.map(log => log.action_description));
-    }
+  const loadData = () => {
+    setBookedSlots(JSON.parse(localStorage.getItem('bookedSlots')) || {});
+    setHistory(JSON.parse(localStorage.getItem('history')) || []);
   };
 
-  const handleRemoveBooking = async (slot) => {
+  const handleRemoveBooking = (slot) => {
     if (bookedSlots[slot]) {
       if (!confirm(`Cancel booking for ${bookedSlots[slot].name} on slot ${slot}?`)) return;
       
       const newBooked = { ...bookedSlots };
       delete newBooked[slot];
       setBookedSlots(newBooked);
+      localStorage.setItem('bookedSlots', JSON.stringify(newBooked));
       
-      await supabase.from('bookings').delete().match({ slot_id: slot });
-      await supabase.from('activity_log').insert([{
-         action_description: `Admin cancelled booking for slot ${slot}`
-      }]);
-      loadData();
+      const updatedHistory = [...history, `Admin cancelled booking for slot ${slot}`];
+      setHistory(updatedHistory);
+      localStorage.setItem('history', JSON.stringify(updatedHistory));
     }
   };
 
-  const handleClearHistory = async () => {
+  const handleClearHistory = () => {
     if (confirm("Are you sure you want to clear all history?")) {
       setHistory([]);
-      await supabase.from('activity_log').delete().gte('id', '00000000-0000-0000-0000-000000000000');
-      loadData();
+      localStorage.setItem('history', JSON.stringify([]));
     }
   };
 
